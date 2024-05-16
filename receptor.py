@@ -11,7 +11,7 @@ sta = network.WLAN(network.STA_IF)
 sta.active(True)
 e = espnow.ESPNow()
 e.active(True)
-mac = "0c:dc:7e:61:c2:f8"
+mac = "e0:5a:1b:a6:cb:f8"
 
 peer = binascii.unhexlify(mac.replace(':', ''))
 e.add_peer(peer)
@@ -33,7 +33,7 @@ def map_value(value, in_min, in_max, out_min, out_max):
 
 # Función para recibir el nivel de batería de la segunda ESP32
 def recibir_json(data):
-    dict_data = json.loads(json.loads(data))
+    dict_data = json.loads(data)
     return dict_data
 
 # Bucle principal

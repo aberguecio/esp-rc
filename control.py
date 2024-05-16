@@ -2,9 +2,8 @@ import network
 import espnow
 import ujson as json
 import binascii
-import time
-import machine
 from machine import Pin, PWM, ADC
+import time
 
 # Configurar ESP-NOW
 sta = network.WLAN(network.STA_IF)
@@ -12,32 +11,36 @@ sta.active(True)
 e = espnow.ESPNow()
 e.active(True)
 
-mac = "e8:31:cd:d6:ef:d4"
+mac = "d4:d4:da:e4:b7:c8"
 peer = binascii.unhexlify(mac.replace(':', ''))
 e.add_peer(peer)
 print(f"Peer agregado: {peer}")
 
 #setup joystick
-joystick_x_pin = 34  # ADC pin for joystick X-axis
-joystick_x = ADC(Pin(joystick_x_pin))
-joystick_min = -4095
-joystick_max = 4095
 
-# Función para enviar el nivel de batería a la primera ESP32
+joystick_x = ADC(Pin(33))
+joystick_x.atten(ADC.ATTN_11DB)
+joystick_y = ADC(Pin(32))
+joystick_y.atten(ADC.ATTN_11DB)
+
+
 def enviar_json(data):
     mensaje = {
-        "numero": data[0],
+        "servo_0": data[0],
         "servo1": data[1],
     }
     mensaje = json.dumps(mensaje)
     print(f"Mensaje enviado: {mensaje}")
-    e.send(json.dumps(mensaje))
+    try:
+        e.send(peer, mensaje)
+    except OSError as ex:
+        print(f"Error al enviar mensaje: {ex}")
+
 
 # Bucle principal
 def main_loop():
-    i=0
     while True:
-        # Enviar el nivel de batería a la primera ESP32
+        y_value = joystick_y.read()
         x_value = joystick_x.read()
-        enviar_json([i,x_value])
-        i=i+1
+        enviar_json([y_value,x_value])
+        time.sleep(0.01)
